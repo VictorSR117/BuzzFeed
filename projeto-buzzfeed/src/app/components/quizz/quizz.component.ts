@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import quizz_questions from '../../../assets/data/quizz_questions.json'
+import { Type } from '@angular/compiler';
 
 @Component({
   selector: 'app-quizz',
@@ -36,6 +37,7 @@ export class QuizzComponent implements OnInit {
 
   playerChoose(value: string) {
     this.answers.push(value)
+    this.nextStep()
   }
 
   async nextStep() {
@@ -45,8 +47,25 @@ export class QuizzComponent implements OnInit {
       this.questionSelected = this.questions[this.questionIndex]
     }
     else {
+      const finalAnswer: string = await this.checkResult(this.answers)
       this.finished = true
+      this.answersSelected = quizz_questions.results[finalAnswer as keyof typeof quizz_questions.results]
     }
+  }
+
+  async checkResult(anwsers: string[]) {
+    const result = anwsers.reduce((previous, current, index, arr) => {
+      if (
+        arr.filter(item => item === previous).length >
+        arr.filter(item => item === current).length
+      ) {
+        return previous
+      }
+      else {
+        return current
+      }
+    });
+    return result
   }
 
 }
